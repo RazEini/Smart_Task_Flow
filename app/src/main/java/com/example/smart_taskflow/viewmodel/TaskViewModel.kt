@@ -3,54 +3,41 @@ package com.example.smart_taskflow.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smart_taskflow.data.model.Task
-import com.example.smart_taskflow.data.repository.TaskRepository
+import com.example.smart_taskflow.ui.screen.assignCategory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class TaskViewModel(private val repository: TaskRepository = TaskRepository()) : ViewModel() {
+class TaskViewModel : ViewModel() {
 
+    // StateFlow של כל המשימות
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
-    val tasks: StateFlow<List<Task>> get() = _tasks
+    val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
-    private val _aiResponse = MutableStateFlow("")
-    val aiResponse: StateFlow<String> get() = _aiResponse
-
-    init {
-        loadTasks()
-    }
-
-    fun loadTasks() {
-        viewModelScope.launch {
-            _tasks.value = repository.getAllTasks()
-        }
-    }
-
+    // הוספת משימה
     fun addTask(task: Task) {
         viewModelScope.launch {
-            repository.addTask(task)
-            loadTasks()
+            _tasks.value = _tasks.value + task
         }
     }
 
+    // עדכון משימה
+    fun updateTask(updatedTask: Task) {
+        viewModelScope.launch {
+            _tasks.value = _tasks.value.map { if (it.id == updatedTask.id) updatedTask else it }
+        }
+    }
+
+    // מחיקת משימה לפי מזהה
     fun deleteTask(taskId: String) {
         viewModelScope.launch {
-            repository.deleteTask(taskId)
-            loadTasks()
+            _tasks.value = _tasks.value.filter { it.id != taskId }
         }
     }
 
-    fun updateTask(task: Task) {
-        viewModelScope.launch {
-            repository.updateTask(task) // עדכון ב-Firebase
-            _tasks.value = _tasks.value.map { if (it.id == task.id) task else it }
-        }
-    }
-
-    fun updateTaskInFirestore(task: Task) {
-        viewModelScope.launch {
-            repository.updateTask(task) // עדכון ב־Firebase
-            _tasks.value = _tasks.value.map { if (it.id == task.id) task else it } // עדכון ב‑UI
-        }
+    // קיבוץ משימות לפי קטגוריה
+    fun getGroupedTasks(): Map<String, List<Task>> {
+        return _tasks.value.groupBy { it.assignCategory() }
     }
 }
