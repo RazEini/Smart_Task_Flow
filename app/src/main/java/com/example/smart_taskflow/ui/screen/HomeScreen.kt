@@ -32,8 +32,8 @@ fun Task.calculatePriority(): Int {
     if (isDone) return 0
     var score = 0
     if (isImportant) score += 3
-    dueDate?.let {
-        val daysLeft = ((it.time - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
+    if (dueDate != null) {
+        val daysLeft = ((dueDate.time - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
         when {
             daysLeft <= 0 -> score += 5
             daysLeft <= 1 -> score += 4
@@ -60,7 +60,7 @@ fun Task.assignCategory(): String {
     return "אחר"
 }
 
-fun categoryColor(category: String): Color = when (category) {
+fun categoryColor(category: String): Color = when(category) {
     "בית" -> Color(0xFFF57F17)
     "עבודה" -> Color(0xFF1565C0)
     "חשבונות" -> Color(0xFFD84315)
@@ -68,10 +68,10 @@ fun categoryColor(category: String): Color = when (category) {
     else -> Color(0xFF424242)
 }
 
-fun priorityColor(priority: Int): Color = when (priority) {
+fun priorityColor(priority: Int): Color = when(priority) {
     0 -> Color.Gray
-    1, 2 -> Color.Yellow
-    3, 4 -> Color(0xFFFF9800)
+    1,2 -> Color(0xFFFFC107) // כהה יותר
+    3,4 -> Color(0xFFFF9800)
     else -> Color.Red
 }
 
@@ -140,14 +140,10 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = category,
-                                fontWeight = FontWeight.Bold,
-                                color = categoryColor(category)
-                            )
+                            Text(category, fontWeight = FontWeight.Bold, color = categoryColor(category))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "(${tasksInCategory.count { !it.isDone }} / ${tasksInCategory.size})",
+                                "(${tasksInCategory.count { !it.isDone }} / ${tasksInCategory.size})",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray
                             )
@@ -161,6 +157,9 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                             onToggleDone = {
                                 viewModel.updateTask(task.copy(isDone = !task.isDone))
                             },
+                            onImportantToggle = {
+                                viewModel.updateTask(task.copy(isImportant = !task.isImportant))
+                            },
                             onEdit = {
                                 editingTask = task
                                 editTitle = task.title
@@ -168,9 +167,6 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                                 editDueDate = task.dueDate
                                 editImportant = task.isImportant
                                 showEditDialog = true
-                            },
-                            onImportantToggle = { isImportant ->
-                                viewModel.updateTask(task.copy(isImportant = isImportant))
                             }
                         )
                     }
@@ -193,14 +189,15 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
             onImportantChange = { newImportant = it },
             onConfirm = {
                 if (newTitle.isNotBlank()) {
-                    val task = Task(
-                        id = UUID.randomUUID().toString(),
-                        title = newTitle,
-                        description = newDescription,
-                        dueDate = newDueDate,
-                        isImportant = newImportant
+                    viewModel.addTask(
+                        Task(
+                            id = UUID.randomUUID().toString(),
+                            title = newTitle,
+                            description = newDescription,
+                            dueDate = newDueDate,
+                            isImportant = newImportant
+                        )
                     )
-                    viewModel.addTask(task)
                     newTitle = ""; newDescription = ""; newDueDate = null; newImportant = false
                     showAddDialog = false
                 }
@@ -226,13 +223,14 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
             onImportantChange = { editImportant = it },
             onConfirm = {
                 editingTask?.let {
-                    val updatedTask = it.copy(
-                        title = editTitle,
-                        description = editDescription,
-                        dueDate = editDueDate,
-                        isImportant = editImportant
+                    viewModel.updateTask(
+                        it.copy(
+                            title = editTitle,
+                            description = editDescription,
+                            dueDate = editDueDate,
+                            isImportant = editImportant
+                        )
                     )
-                    viewModel.updateTask(updatedTask)
                 }
                 showEditDialog = false
             },
@@ -246,25 +244,12 @@ fun ModernTaskItem(
     task: Task,
     onDelete: () -> Unit,
     onToggleDone: () -> Unit,
-    onEdit: () -> Unit,
-    onImportantToggle: (Boolean) -> Unit
+    onImportantToggle: () -> Unit,
+    onEdit: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
-        if (task.isDone) Color(0xFFE0F7FA) else Color.White
-    )
+    val backgroundColor by animateColorAsState(if (task.isDone) Color(0xFFE0F7FA) else Color.White)
     val priority = task.calculatePriority()
     val animatedColor by animateColorAsState(targetValue = priorityColor(priority))
-
-    val today = Calendar.getInstance().time
-    val dueColor = task.dueDate?.let { date ->
-        val diff = date.time - today.time
-        when {
-            diff < 0 -> Color.Gray
-            diff <= 2 * 24 * 60 * 60 * 1000 -> Color.Red
-            diff <= 7 * 24 * 60 * 60 * 1000 -> Color.Yellow
-            else -> Color.Green
-        }
-    } ?: Color.Transparent
 
     Card(
         modifier = Modifier
@@ -298,14 +283,11 @@ fun ModernTaskItem(
                         )
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    IconToggleButton(
-                        checked = task.isImportant,
-                        onCheckedChange = onImportantToggle
-                    ) {
+                    IconButton(onClick = onImportantToggle) {
                         Icon(
                             imageVector = if (task.isImportant) Icons.Default.Star else Icons.Default.Star,
                             contentDescription = "חשוב",
-                            tint = if (task.isImportant) Color(0xFFFFD700) else Color.Gray
+                            tint = if (task.isImportant) Color(0xFFFFC107) else Color.Gray
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -316,6 +298,7 @@ fun ModernTaskItem(
                             .background(categoryColor(task.assignCategory()))
                     )
                 }
+
                 if (task.description.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -325,14 +308,16 @@ fun ModernTaskItem(
                         )
                     )
                 }
+
                 task.dueDate?.let { date ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         "יעד: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)}",
-                        style = MaterialTheme.typography.bodySmall.copy(color = dueColor)
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Black)
                     )
                 }
             }
+
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 IconButton(
                     onClick = onToggleDone,
@@ -343,6 +328,7 @@ fun ModernTaskItem(
                 ) {
                     Icon(Icons.Default.Check, contentDescription = "סמן כבוצע", tint = Color.White)
                 }
+
                 IconButton(
                     onClick = onEdit,
                     modifier = Modifier
@@ -352,6 +338,7 @@ fun ModernTaskItem(
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = "ערוך", tint = Color.White)
                 }
+
                 IconButton(
                     onClick = onDelete,
                     modifier = Modifier
@@ -381,27 +368,16 @@ fun TaskDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-    taskDueDate?.let { calendar.time = it }
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val calendar = Calendar.getInstance().apply { taskDueDate?.let { time = it } }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                TextField(
-                    value = taskTitle,
-                    onValueChange = onTitleChange,
-                    label = { Text("כותרת") },
-                    singleLine = true
-                )
+                TextField(taskTitle, onValueChange = onTitleChange, label = { Text("כותרת") }, singleLine = true)
                 Spacer(Modifier.height(8.dp))
-                TextField(
-                    value = taskDescription,
-                    onValueChange = onDescriptionChange,
-                    label = { Text("תיאור") }
-                )
+                TextField(taskDescription, onValueChange = onDescriptionChange, label = { Text("תיאור") })
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = taskImportant, onCheckedChange = onImportantChange)
@@ -411,26 +387,26 @@ fun TaskDialog(
                 OutlinedButton(onClick = {
                     DatePickerDialog(
                         context,
-                        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                            val pickedCalendar = Calendar.getInstance()
-                            pickedCalendar.set(year, month, dayOfMonth)
-                            onDueDateChange(pickedCalendar.time)
+                        { _: DatePicker, year: Int, month: Int, day: Int ->
+                            calendar.set(year, month, day)
+                            onDueDateChange(calendar.time)
                         },
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
                         calendar.get(Calendar.DAY_OF_MONTH)
                     ).show()
                 }) {
-                    Text(taskDueDate?.let { "עד: ${dateFormat.format(it)}" } ?: "בחר תאריך יעד")
+                    Text(taskDueDate?.let { "עד: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)}" } ?: "בחר תאריך יעד")
                 }
             }
         },
         confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
-            ) { Text("שמור", color = Color.White) }
+            Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))) {
+                Text("שמור", color = Color.White)
+            }
         },
-        dismissButton = { Button(onClick = onDismiss) { Text("ביטול") } }
+        dismissButton = {
+            Button(onClick = onDismiss) { Text("ביטול") }
+        }
     )
 }
