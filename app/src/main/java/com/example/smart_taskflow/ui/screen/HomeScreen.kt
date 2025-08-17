@@ -118,6 +118,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
+    var showDetailsTask by remember { mutableStateOf<Task?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var archiveExpanded by remember { mutableStateOf(false) }
 
@@ -202,6 +203,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                                     editingTask = task
                                     showEditDialog = true
                                 },
+                                onShowDetails = { showDetailsTask = task },
                                 isArchiveItem = false
                             )
                         }
@@ -238,6 +240,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                                     editingTask = task
                                     showEditDialog = true
                                 },
+                                onShowDetails = { showDetailsTask = task },
                                 isArchiveItem = true
                             )
                         }
@@ -247,7 +250,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
         }
     }
 
-    // דיאלוגים
+    // דיאלוגי משימות
     if (showAddDialog) {
         TaskDialog(
             title = "משימה חדשה",
@@ -284,6 +287,11 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
             onDismiss = { showEditDialog = false }
         )
     }
+
+    // דיאלוג פרטי משימה
+    showDetailsTask?.let { task ->
+        TaskDetailsDialog(task) { showDetailsTask = null }
+    }
 }
 
 // ---------- שורת משימה ----------
@@ -294,6 +302,7 @@ fun ModernTaskItem(
     onToggleDone: () -> Unit,
     onImportantToggle: () -> Unit,
     onEdit: () -> Unit,
+    onShowDetails: () -> Unit,
     isArchiveItem: Boolean
 ) {
     val backgroundColor by animateColorAsState(if (task.isDone && !isArchiveItem) Color(0xFFE0F7FA) else Color.White)
@@ -329,7 +338,8 @@ fun ModernTaskItem(
                     if (dragAmount > 100) onToggleDone()
                     if (dragAmount < -100) onDelete()
                 }
-            },
+            }
+            .clickable { onShowDetails() },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -347,14 +357,20 @@ fun ModernTaskItem(
                     .background(animatedColor)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f) // תופס רק את החלל שנותר
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         task.title,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = if (task.isDone && !isArchiveItem) Color.Gray else Color(0xFF212121)
-                        )
+                        ),
+                        modifier = Modifier.weight(1f), // תופס רק את החלל שנותר
+                        maxLines = 2, // שורה אחת בלבד
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis // … בסוף אם ארוך מדי
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(categorySymbol, fontSize = MaterialTheme.typography.titleMedium.fontSize)
@@ -371,18 +387,12 @@ fun ModernTaskItem(
                 if (task.description.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        task.description,
+                        task.description.lines().firstOrNull() ?: "",
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = if (task.isDone && !isArchiveItem) Color.Gray else Color(0xFF616161)
                         )
-                    )
-                }
-
-                task.dueDate?.let { date ->
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "יעד: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)}",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Black)
                     )
                 }
             }
@@ -394,7 +404,7 @@ fun ModernTaskItem(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(
-                            if (isArchiveItem) Color(0xFFFF9800) // כתום כהה לארכיון
+                            if (isArchiveItem) Color(0xFFFF9800)
                             else if (task.isDone) Color(0xFF4CAF50)
                             else Color(0xFFE0E0E0)
                         )
@@ -426,7 +436,28 @@ fun ModernTaskItem(
     }
 }
 
-// ---------- דיאלוג משימות ----------
+// ---------- דיאלוג פרטי משימה ----------
+@Composable
+fun TaskDetailsDialog(task: Task, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(task.title, fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                if (task.description.isNotEmpty()) Text(task.description)
+                task.dueDate?.let {
+                    Text("תאריך יעד: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)}")
+                }
+                Text("חשוב: ${if (task.isImportant) "כן" else "לא"}")
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) { Text("סגור") }
+        }
+    )
+}
+
+// ---------- דיאלוג משימות (חדש / עריכה) ----------
 @Composable
 fun TaskDialog(
     title: String,
@@ -487,10 +518,10 @@ fun TaskDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onConfirm(taskTitle, taskDescription, taskDueDate, taskImportant) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))) {
-                Text("שמור", color = Color.White)
-            }
+            Button(
+                onClick = { onConfirm(taskTitle, taskDescription, taskDueDate, taskImportant) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            ) { Text("שמור", color = Color.White) }
         },
         dismissButton = {
             Button(onClick = onDismiss) { Text("ביטול") }
