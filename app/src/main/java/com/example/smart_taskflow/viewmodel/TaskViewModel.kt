@@ -77,7 +77,7 @@ class TaskViewModel : ViewModel() {
         }
     }
 
-    // קיבוץ לפי קטגוריה
+    // קיבוץ לפי קטגוריה (אם תרצה להשתמש בזה בממשק)
     fun getGroupedTasks(): Map<String, List<Task>> {
         return _tasks.value.groupBy { it.assignCategory() }
     }
