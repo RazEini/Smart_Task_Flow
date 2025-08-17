@@ -130,6 +130,11 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
 
     val archivedTasks = tasks.filter { it.isDone }
 
+    // אם אין משימות בארכיון, סוגרים את הארכיון אוטומטית
+    LaunchedEffect(archivedTasks) {
+        if (archivedTasks.isEmpty()) archiveExpanded = false
+    }
+
     Scaffold(
         topBar = {
             Column {
@@ -368,10 +373,11 @@ fun ModernTaskItem(
                             fontWeight = FontWeight.Bold,
                             color = if (task.isDone && !isArchiveItem) Color.Gray else Color(0xFF212121)
                         ),
-                        modifier = Modifier.weight(1f), // תופס רק את החלל שנותר
-                        maxLines = 2, // שורה אחת בלבד
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis // … בסוף אם ארוך מדי
+                        maxLines = 2,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f) // תופס את החלל שנותר ולא חורג על האייקונים
                     )
+
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(categorySymbol, fontSize = MaterialTheme.typography.titleMedium.fontSize)
                     Spacer(modifier = Modifier.width(4.dp))
