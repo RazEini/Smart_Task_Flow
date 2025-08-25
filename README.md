@@ -1,29 +1,61 @@
-📋 TaskFlow App
+# 📱 TaskFlow – Smart Task Manager App
 
-Mobile app – a smart task management app with automated prioritization and categorization.
+מנהל משימות חכם למובייל עם **אוטומציה של סדר עדיפויות וקטגוריות**.  
+מבוסס Jetpack Compose + MVVM.
 
-🚀 Features
 
-Add, edit, and delete tasks
+---
 
-Mark tasks as important or done
+## 🔎 Overview
+TaskFlow נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות וסדר עדיפויות מבוסס הקשר.
 
-Automatic task prioritization based on due date, importance, and keywords
+---
 
-Automatic categorization into: Home 🏠, Work 💼, Studies 🎓, Bills 🧾, Others 🏷️
+## 🚀 Features
 
-Search tasks by title or description
+| תחום | תכונה | סטטוס | הערות |
+|------|--------|--------|--------|
+| 📝 משימות | הוספה, עריכה ומחיקה | ✅ | CRUD מלא |
+| ⭐ חשיבות | סימון כחשוב / הושלם | ✅ | טוגל מהיר |
+| ⚡ אוטומציה | סדר עדיפויות לפי תאריך יעד, חשיבות, מילות מפתח | ✅ | Rule-based |
+| 🏷️ קטגוריות | בית 🏠, עבודה 💼, לימודים 🎓, חשבונות 🧾, אחרים 🏷️ | ✅ | זיהוי אוטומטי לפי טקסט |
+| 🔍 חיפוש | לפי כותרת / תיאור | ✅ | ריל־טיים |
+| 📅 קיבוץ תאריכים | היום, מחר, השבוע, עתידי, ללא תאריך | ✅ | אוטומטי |
+| 📦 ארכיון | משימות שהושלמו (פתיחה/סגירה) | ✅ | Collapsible section |
+| 👆 מחוות | החלקה ימינה/שמאלה לסיום או מחיקה | ✅ | Gesture control |
+| 📄 דיאלוג פריט | כותרת, תיאור, תאריך יעד, חשיבות | ✅ | תצוגה מפורטת |
 
-Group tasks by date: Today, Tomorrow, This Week, Future, or No Date
+---
 
-Archive completed tasks with expand/collapse functionality
+## 🧭 Roadmap
 
-Swipe gestures: mark as done or delete
+| גרסה | מטרה | פיצ'רים מרכזיים |
+|------|-------|----------------|
+| v0.1 | MVP בסיסי | CRUD משימות, חיפוש, קיבוץ לפי תאריך |
+| v0.2 | אוטומציה | סדר עדיפויות אוטומטי + סיווג לפי קטגוריה |
+| v0.3 | UX מתקדם | מחוות החלקה, ארכיון, אנימציות |
+| v1.0 | שחרור יציב | בדיקות יחידה/UI, שיפורי ביצועים |
 
-Detailed task dialog with description, due date, and importance
+---
 
-🛠️ Tech Stack
+## ✅ Success Metrics
 
-Kotlin • Android Studio • Jetpack Compose • Material3 • MVVM architecture
+| מטרה | מדד | יעד |
+|------|------|------|
+| הקטנת עומס קוגניטיבי | % משימות עם עדיפות/קטגוריה אוטומטיים | ≥ 80% |
+| חיפוש מהיר | זמן חיפוש ממוצע (p95) | ≤ 1 שנייה |
+| שמישות | SUS (System Usability Score) | ≥ 80 |
 
-👨‍💻 Raz Eini (2025)
+---
+
+## 🛠️ Tech Stack
+- **Language**: Kotlin  
+- **IDE**: Android Studio  
+- **UI**: Jetpack Compose + Material 3  
+- **Architecture**: MVVM  
+- **Data**: Room / ViewModel / StateFlow  
+
+---
+
+## 👨‍💻 Author
+**Raz Eini** (2025)
