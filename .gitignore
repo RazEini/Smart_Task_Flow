@@ -1,3 +1,4 @@
+# Android / IntelliJ
 *.iml
 .gradle
 /local.properties
@@ -13,3 +14,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Secrets / API keys
+google-services.json
+*.env
