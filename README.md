@@ -1,3 +1,5 @@
+<div dir="rtl">
+
   <h1>📱 TaskFlow – Smart Task Manager App</h1>
 
   <p>
@@ -5,13 +7,12 @@
     מבוסס Jetpack Compose + MVVM.
   </p>
 
-  <p align="center">
-    <img src="https://img.shields.io/badge/Kotlin-100%25-orange?style=for-the-badge&logo=kotlin" alt="Kotlin Badge">
-    <img src="https://img.shields.io/badge/Jetpack%20Compose-UI-blue?style=for-the-badge&logo=jetpackcompose" alt="Jetpack Compose Badge">
-    <img src="https://img.shields.io/badge/Architecture-MVVM-green?style=for-the-badge" alt="MVVM Badge">
-    <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License Badge">
+  <p align="right">
+    <img src="https://img.shields.io/badge/Kotlin-100%25-orange?logo=kotlin" alt="Kotlin Badge">
+    <img src="https://img.shields.io/badge/Jetpack%20Compose-UI-blue?logo=jetpackcompose" alt="Jetpack Compose Badge">
+    <img src="https://img.shields.io/badge/Architecture-MVVM-green" alt="MVVM Badge">
+    <img src="https://img.shields.io/badge/License-MIT-blue" alt="License Badge">
   </p>
-
 
   <hr>
 
@@ -110,7 +111,9 @@
     הפרויקט מופץ תחת רישיון <strong>MIT</strong> – חופשי לשימוש, שינוי והפצה, כל עוד נשמר קרדיט למחבר.
   </p>
   <p>למידע נוסף ראה את קובץ <a href="LICENSE">LICENSE</a></p>
+
   <hr>
 
   <p><strong>👨‍💻 Raz Eini (2025)</strong></p>
 
+</div>
