@@ -4,6 +4,7 @@
 
   <p>
     מנהל משימות חכם למובייל עם <strong>אוטומציה של סדר עדיפויות וקטגוריות</strong>.<br>
+    כולל מסכי Splash, Login, Register, Dashboard ו-HomeScreen להצגת משימות.<br>
     מבוסס Jetpack Compose + MVVM.
   </p>
 
@@ -19,7 +20,9 @@
   <h2>🔎 Overview</h2>
   <p>
     <strong>TaskFlow</strong> נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות
-    וסדר עדיפויות מבוסס הקשר.
+    וסדר עדיפויות מבוסס הקשר. <br>
+    מסך <strong>Dashboard</strong> מציג את שם המשתמש, כמות המשימות לביצוע וסינון לפי קטגוריות, <br>
+    ו-<strong>HomeScreen</strong> מציג את כל המשימות לבחירה, עריכה וסיום משימות.
   </p>
 
   <hr>
@@ -37,6 +40,12 @@
     </thead>
     <tbody>
       <tr>
+        <td>🖥️ מסכים</td>
+        <td>SplashScreen, LoginScreen, RegisterScreen, Dashboard, HomeScreen</td>
+        <td>✅</td>
+        <td>מעבר חכם בין מסכים + הצגת משימות לפי קטגוריות</td>
+      </tr>
+      <tr>
         <td>📝 משימות</td>
         <td>הוספה, עריכה ומחיקה</td>
         <td>✅</td>
@@ -46,7 +55,7 @@
         <td>⭐ חשיבות</td>
         <td>סימון כחשוב / הושלם</td>
         <td>✅</td>
-        <td>טוגל מהיר</td>
+        <td>טוגל מהיר + צבע מותאם אישית</td>
       </tr>
       <tr>
         <td>⚡ אוטומציה</td>
@@ -58,7 +67,7 @@
         <td>🏷️ קטגוריות</td>
         <td>בית 🏠, עבודה 💼, לימודים 🎓, חשבונות 🧾, אחרים 🏷️</td>
         <td>✅</td>
-        <td>זיהוי אוטומטי לפי טקסט</td>
+        <td>סינון אוטומטי בדשבורד ו-Homescreen</td>
       </tr>
       <tr>
         <td>🔍 חיפוש</td>
@@ -90,6 +99,12 @@
         <td>✅</td>
         <td>תצוגה מפורטת</td>
       </tr>
+      <tr>
+        <td>🖼️ אייקונים</td>
+        <td>לוגו מותאם אישי + תמונת משתמש בצבע לבן</td>
+        <td>✅</td>
+        <td>Dashboard + SplashScreen</td>
+      </tr>
     </tbody>
   </table>
 
@@ -102,6 +117,7 @@
     <li><strong>UI:</strong> Jetpack Compose + Material 3</li>
     <li><strong>Architecture:</strong> MVVM</li>
     <li><strong>Data:</strong> Room / ViewModel / StateFlow</li>
+    <li><strong>Authentication:</strong> Firebase Auth</li>
   </ul>
 
   <hr>
