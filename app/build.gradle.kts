@@ -59,6 +59,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
 
     // Retrofit + Moshi (ל‑AI)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
@@ -67,4 +68,6 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
 
     implementation("junit:junit:4.13.2")
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 }

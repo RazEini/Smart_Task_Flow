@@ -33,6 +33,7 @@ import java.util.*
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.navigation.NavController
 
 // ---------- חישוב עדיפות ----------
 fun Task.calculatePriority(): Int {
@@ -100,18 +101,14 @@ fun priorityColor(priority: Int): Color = when (priority) {
     else -> Color.Red
 }
 
-fun categoryColor(category: String): Color = when (category) {
-    "בית" -> Color(0xFF795548)
-    "עבודה" -> Color(0xFF1565C0)
-    "חשבונות" -> Color(0xFFE64A19)
-    "לימודים" -> Color(0xFF8E24AA)
-    else -> Color(0xFF424242)
-}
-
 // ---------- מסך הבית ----------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: TaskViewModel = viewModel(),
+    navController: NavController,
+    category: String = "all"
+) {
     val tasks by viewModel.tasks.collectAsState()
     val context = LocalContext.current
 
@@ -122,15 +119,19 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
     var archiveExpanded by remember { mutableStateOf(false) }
 
-    val filteredTasks = remember(tasks, searchQuery) {
-        tasks.filter { it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true) }
-            .sortedByDescending { it.calculatePriority() }
+    val tasksInCategory = remember(tasks, category, searchQuery) {
+        tasks
+            .filter { category == "all" || it.assignCategory() == category }
+            .filter { it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true) }
+    }
+
+    val groupedTasks = remember(tasksInCategory) {
+        tasksInCategory.sortedByDescending { it.calculatePriority() }
             .groupBy { it.dateGroup() }
     }
 
     val archivedTasks = tasks.filter { it.isDone }
 
-    // אם אין משימות בארכיון, סוגרים את הארכיון אוטומטית
     LaunchedEffect(archivedTasks) {
         if (archivedTasks.isEmpty()) archiveExpanded = false
     }
@@ -165,37 +166,49 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
         },
         containerColor = Color(0xFFF2F2F2)
     ) { padding ->
-        if (tasks.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) { Text("אין משימות 😴", color = Color.Gray) }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                // משימות רגילות
-                filteredTasks.forEach { (group, tasksInGroup) ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (tasks.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) { Text("אין משימות 😴", color = Color.Gray) }
+                }
+            } else {
+                if (category != "all") {
+                    item {
+                        val total = tasksInCategory.count()
+                        Text(
+                            "קטגוריה: $category ($total משימות)",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray.copy(alpha = 0.3f))
+                                .padding(12.dp)
+                        )
+                    }
+                }
+
+                groupedTasks.forEach { (group, tasksInGroup) ->
                     val normalTasks = tasksInGroup.filter { !it.isDone }
                     if (normalTasks.isNotEmpty()) {
                         item {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color.LightGray.copy(alpha = 0.3f))
-                                    .padding(12.dp),
+                                    .background(Color.LightGray.copy(alpha = 0.2f))
+                                    .padding(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(group, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "(${normalTasks.count()} / ${tasksInGroup.size})",
-                                    color = Color.Gray
-                                )
+                                Text("(${normalTasks.count()} / ${tasksInGroup.size})", color = Color.Gray)
                             }
                         }
                         items(normalTasks) { task ->
@@ -215,7 +228,6 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                     }
                 }
 
-                // ארכיון
                 if (archivedTasks.isNotEmpty()) {
                     item {
                         Row(
@@ -251,22 +263,42 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                         }
                     }
                 }
+
+                // כפתור חזרה ל-Dashboard בסוף הרשימה
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate("dashboard") {
+                                popUpTo("dashboard") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Text("חזור למסך הראשי", color = Color.White)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
 
-    // דיאלוגי משימות
     if (showAddDialog) {
         TaskDialog(
             title = "משימה חדשה",
             onConfirm = { title, description, dueDate, important ->
-                viewModel.addTask(Task(
-                    id = UUID.randomUUID().toString(),
-                    title = title,
-                    description = description,
-                    dueDate = dueDate,
-                    isImportant = important
-                ))
+                viewModel.addTask(
+                    Task(
+                        id = UUID.randomUUID().toString(),
+                        title = title,
+                        description = description,
+                        dueDate = dueDate,
+                        isImportant = important
+                    )
+                )
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false }
@@ -281,22 +313,21 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
             initialDueDate = editingTask!!.dueDate,
             initialImportant = editingTask!!.isImportant,
             onConfirm = { title, description, dueDate, important ->
-                viewModel.updateTask(editingTask!!.copy(
-                    title = title,
-                    description = description,
-                    dueDate = dueDate,
-                    isImportant = important
-                ))
+                viewModel.updateTask(
+                    editingTask!!.copy(
+                        title = title,
+                        description = description,
+                        dueDate = dueDate,
+                        isImportant = important
+                    )
+                )
                 showEditDialog = false
             },
             onDismiss = { showEditDialog = false }
         )
     }
 
-    // דיאלוג פרטי משימה
-    showDetailsTask?.let { task ->
-        TaskDetailsDialog(task) { showDetailsTask = null }
-    }
+    showDetailsTask?.let { task -> TaskDetailsDialog(task) { showDetailsTask = null } }
 }
 
 // ---------- שורת משימה ----------
