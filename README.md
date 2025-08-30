@@ -99,12 +99,6 @@
         <td>✅</td>
         <td>תצוגה מפורטת</td>
       </tr>
-      <tr>
-        <td>🖼️ אייקונים</td>
-        <td>לוגו מותאם אישי + תמונת משתמש בצבע לבן</td>
-        <td>✅</td>
-        <td>Dashboard + SplashScreen</td>
-      </tr>
     </tbody>
   </table>
 
