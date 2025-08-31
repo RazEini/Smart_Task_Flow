@@ -431,7 +431,7 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
                             .clickable {
                                 val route = when (category) {
                                     "כל המשימות" -> "all"
-                                    "אחר" -> "other"
+                                    "אחר" -> "אחר"
                                     else -> category
                                 }
                                 navController.navigate("home/$route")

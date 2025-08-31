@@ -120,9 +120,18 @@ fun HomeScreen(
     var archiveExpanded by remember { mutableStateOf(false) }
 
     val tasksInCategory = remember(tasks, category, searchQuery) {
-        tasks
-            .filter { category == "all" || it.assignCategory() == category }
-            .filter { it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true) }
+        tasks.filter {
+            when (category) {
+                "all" -> true
+                "other" -> {
+                    val cat = it.assignCategory()
+                    cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+                }
+                else -> it.assignCategory() == category
+            }
+        }.filter {
+            it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true)
+        }
     }
 
     val groupedTasks = remember(tasksInCategory) {
@@ -556,7 +565,12 @@ fun TaskDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(taskTitle, taskDescription, taskDueDate, taskImportant) },
+                onClick = {
+                    if (taskTitle.isNotBlank()) {
+                        onConfirm(taskTitle, taskDescription, taskDueDate, taskImportant)
+                        onDismiss()
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
             ) { Text("שמור", color = Color.White) }
         },
