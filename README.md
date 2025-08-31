@@ -18,7 +18,7 @@
   <hr>
 
   <h2>🔎 Overview</h2>
-  <p>
+  <p dir = "rtl">
     <strong>TaskFlow</strong> נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות
     וסדר עדיפויות מבוסס הקשר. <br>
     מסך <strong>Dashboard</strong> מציג את שם המשתמש, כמות המשימות לביצוע וסינון לפי קטגוריות, <br>
