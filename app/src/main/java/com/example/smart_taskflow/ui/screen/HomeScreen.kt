@@ -111,6 +111,7 @@ fun HomeScreen(
 ) {
     val tasks by viewModel.tasks.collectAsState()
     val context = LocalContext.current
+    val currentUserId = viewModel.currentUserIdPublic
 
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -119,19 +120,22 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
     var archiveExpanded by remember { mutableStateOf(false) }
 
+    // סינון לפי קטגוריה וחיפוש
     val tasksInCategory = remember(tasks, category, searchQuery) {
-        tasks.filter {
-            when (category) {
-                "all" -> true
-                "other" -> {
-                    val cat = it.assignCategory()
-                    cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+        tasks.filter { it.userId == currentUserId }
+            .filter {
+                when (category) {
+                    "all" -> !it.isDone
+                    "other" -> {
+                        val cat = it.assignCategory()
+                        !it.isDone && cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+                    }
+                    else -> !it.isDone && it.assignCategory() == category
                 }
-                else -> it.assignCategory() == category
             }
-        }.filter {
-            it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true)
-        }
+            .filter {
+                it.title.contains(searchQuery, true) || it.description.contains(searchQuery, true)
+            }
     }
 
     val groupedTasks = remember(tasksInCategory) {
@@ -139,7 +143,7 @@ fun HomeScreen(
             .groupBy { it.dateGroup() }
     }
 
-    val archivedTasks = tasks.filter { it.isDone }
+    val archivedTasks = tasks.filter { it.userId == currentUserId && it.isDone }
 
     LaunchedEffect(archivedTasks) {
         if (archivedTasks.isEmpty()) archiveExpanded = false
@@ -180,7 +184,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (tasks.isEmpty()) {
+            if (tasksInCategory.isEmpty() && archivedTasks.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -224,8 +228,8 @@ fun HomeScreen(
                             ModernTaskItem(
                                 task = task,
                                 onDelete = { viewModel.deleteTask(task.id) },
-                                onToggleDone = { viewModel.updateTask(task.copy(isDone = !task.isDone)) },
-                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant)) },
+                                onToggleDone = { viewModel.updateTask(task.copy(isDone = !task.isDone, userId = currentUserId)) },
+                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId)) },
                                 onEdit = {
                                     editingTask = task
                                     showEditDialog = true
@@ -237,6 +241,7 @@ fun HomeScreen(
                     }
                 }
 
+                // ארכיון
                 if (archivedTasks.isNotEmpty()) {
                     item {
                         Row(
@@ -260,8 +265,8 @@ fun HomeScreen(
                             ModernTaskItem(
                                 task = task,
                                 onDelete = { viewModel.deleteTask(task.id) },
-                                onToggleDone = { viewModel.updateTask(task.copy(isDone = false)) },
-                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant)) },
+                                onToggleDone = { viewModel.updateTask(task.copy(isDone = false, userId = currentUserId)) },
+                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId)) },
                                 onEdit = {
                                     editingTask = task
                                     showEditDialog = true
@@ -305,7 +310,8 @@ fun HomeScreen(
                         title = title,
                         description = description,
                         dueDate = dueDate,
-                        isImportant = important
+                        isImportant = important,
+                        userId = currentUserId
                     )
                 )
                 showAddDialog = false
@@ -327,7 +333,8 @@ fun HomeScreen(
                         title = title,
                         description = description,
                         dueDate = dueDate,
-                        isImportant = important
+                        isImportant = important,
+                        userId = currentUserId
                     )
                 )
                 showEditDialog = false

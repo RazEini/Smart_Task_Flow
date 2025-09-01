@@ -9,5 +9,6 @@ data class Task(
     val isDone: Boolean = false,
     val category: String = "אחר",
     val dueDate: Date? = null,
-    val isImportant: Boolean = false
+    val isImportant: Boolean = false,
+    val userId: String = "" // <-- מזהה המשתמש
 )

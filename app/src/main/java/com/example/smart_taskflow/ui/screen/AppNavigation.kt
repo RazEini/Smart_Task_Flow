@@ -354,27 +354,27 @@ fun RegisterScreen(navController: NavController) {
     }
 }
 
+// ----------------- DashboardScreen -----------------
 @Composable
 fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavController) {
     val user = FirebaseAuth.getInstance().currentUser
     val username = user?.displayName ?: "משתמש"
 
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
-    val totalTasks = tasks.size
+    val totalTasks = tasks.count { !it.isDone } // רק משימות פעילות
 
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        // --- רקע ---
+        // רקע
         Image(
-            painter = painterResource(id = R.drawable.taskflow_bg), // ודא שהתמונה קיימת ב-drawable
+            painter = painterResource(id = R.drawable.taskflow_bg),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        // --- תוכן המסך ---
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -386,7 +386,7 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.AccountCircle, // אייקון של משתמש
+                    imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "User Icon",
                     tint = Color.White,
                     modifier = Modifier.size(40.dp)
@@ -396,7 +396,7 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
                     "שלום, $username 👋",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White // אם הרקע כהה, צבע לבן
+                    color = Color.White
                 )
             }
 
@@ -409,7 +409,6 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
 
             Spacer(Modifier.height(24.dp))
 
-            // כאן ה-LazyColumn עם המשימות
             val categories = listOf("כל המשימות", "בית", "עבודה", "לימודים", "חשבונות", "אחר")
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -417,12 +416,14 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
             ) {
                 items(categories) { category ->
                     val count = when (category) {
-                        "כל המשימות" -> tasks.size
+                        "כל המשימות" -> tasks.count { !it.isDone }
                         "אחר" -> tasks.count {
-                            val cat = it.assignCategory()
-                            cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+                            !it.isDone && run {
+                                val cat = it.assignCategory()
+                                cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+                            }
                         }
-                        else -> tasks.count { it.assignCategory() == category }
+                        else -> tasks.count { !it.isDone && it.assignCategory() == category }
                     }
 
                     Card(
@@ -477,10 +478,8 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("התנתק", style = MaterialTheme.typography.titleMedium)
-            }
+                shape = RoundedCornerShape(20.dp)
+            ) { Text("התנתק", color = Color.White) }
         }
     }
 }
