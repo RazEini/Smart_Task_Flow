@@ -409,23 +409,36 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
 
             Spacer(Modifier.height(24.dp))
 
-            val categories = listOf("כל המשימות", "בית", "עבודה", "לימודים", "חשבונות", "אחר")
+            val categories = listOf(
+                "כל המשימות",
+                "בית",
+                "עבודה",
+                "לימודים",
+                "חשבונות",
+                "קניות",
+                "ספורט",
+                "בריאות",
+                "פרויקטים אישיים",
+                "תחבורה",
+                "אחר"
+            )
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(categories) { category ->
-                    val count = when (category) {
+                    val count = when(category) {
                         "כל המשימות" -> tasks.count { !it.isDone }
-                        "אחר" -> tasks.count {
-                            !it.isDone && run {
-                                val cat = it.assignCategory()
-                                cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
+                        "אחר" -> {
+                            tasks.count {
+                                !it.isDone && run {
+                                    val cat = it.assignCategory()
+                                    !categories.subList(1, categories.size - 1).contains(cat) // כל מה שלא נמצא ברשימת הקטגוריות למעט "כל המשימות" ו"אחר"
+                                }
                             }
                         }
                         else -> tasks.count { !it.isDone && it.assignCategory() == category }
                     }
-
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -456,6 +469,13 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
                                         "עבודה" -> "💼"
                                         "לימודים" -> "🎓"
                                         "חשבונות" -> "🧾"
+                                        "קניות" -> "🛒"
+                                        "ספורט" -> "🏋️"
+                                        "בריאות" -> "🩺"
+                                        "פרויקטים אישיים" -> "🛠️"
+                                        "תחבורה" -> "🚗"
+                                        "משפחה" -> "👨‍👩‍👧‍👦"
+                                        "כל המשימות", "אחר" -> "🏷️"
                                         else -> "🏷️"
                                     },
                                     fontSize = MaterialTheme.typography.headlineMedium.fontSize
