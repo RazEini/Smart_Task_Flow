@@ -85,18 +85,48 @@ fun Task.dateGroup(): String {
 
 // ---------- קטגוריות אוטומטיות ----------
 fun Task.assignCategory(): String {
-    val categoryPatterns = mapOf(
-        "בית" to listOf("קני[ןיות]?", "ניקי[ו]ן", "בישול", "בשל", "כביסה", "סידור", "סידר"),
-        "עבודה" to listOf("פגיש[ה|ות]?", "דוח", "שיחה", "טלפון", "מייל", "דוא״ל"),
-        "חשבונות" to listOf("תשלום", "חשבונית?", "חוב", "חיוב", "קבלה"),
-        "לימודים" to listOf("ספר", "תרגיל", "מבחן", "לימוד", "שיעור", "פרויקט", "שאלה"),
-        "קניות" to listOf("קנייה", "סופר", "מכולת", "שוק"),
-        "ספורט" to listOf("כושר", "אימון", "ריצה", "הליכה", "שחייה"),
-        "בריאות" to listOf("רופא", "תרופה", "בדיקה", "מחלה", "טיפול"),
-        "פרויקטים אישיים" to listOf("פרויקט", "יוזמה", "תכנות", "קוד", "כתיבה"),
-        "תחבורה" to listOf("נסיעה", "רכב", "תחבורה", "אוטובוס", "רכבת"),
-        "משפחה" to listOf("הורים", "אחים", "משפחה", "ילדים", "בן זוג")
+    val categoryPatterns = linkedMapOf(
+        "בית" to listOf(
+            "בישול", "בשל", "ניקיון", "כביסה", "סידור", "סידר", "מטבח", "דירה", "בית", "חלון", "רצפה",
+            "ארון", "סלון", "חדר", "חדר שינה", "מיטה", "שטיח", "וילון", "גינה", "חצר", "גן"
+        ),
+        "עבודה" to listOf(
+            "פגישה", "פגישות", "דוח", "שיחה", "טלפון", "מייל", "דוא״ל", "פרויקט", "עבודה", "משימות",
+            "צוות", "חברה", "מנהל", "דדליין", "דוחות", "פיתוח", "מכירות", "שיווק", "פרזנטציה"
+        ),
+        "חשבונות" to listOf(
+            "תשלום", "חשבונית", "חוב", "חיוב", "קבלה", "בנק", "אשראי", "חשבונות", "ארנונה", "חשבונית מס",
+            "מיסים", "מס הכנסה", "הוצאות", "תקציב", "פנסיה", "ביטוח", "הפקדה", "משכנתא"
+        ),
+        "לימודים" to listOf(
+            "ספר", "תרגיל", "מבחן", "לימוד", "שיעור", "פרויקט", "שאלה", "קורס", "מדריך", "חומרי לימוד",
+            "כיתה", "מורה", "סטודנט", "אוניברסיטה", "מכללה", "בדיקה", "תרגול", "מבחנים", "חומרי קורס"
+        ),
+        "קניות" to listOf(
+            "קנייה", "קניות", "סופר", "מכולת", "שוק", "קניון", "חנות", "בגדים", "נעליים", "מזון", "ירקות", "פירות",
+            "חלב", "בשר", "דגים", "מוצרי חשמל", "מוצרי בית", "צעצועים", "ספרים", "ביגוד", "אביזרים"
+        ),
+        "ספורט" to listOf(
+            "כושר", "אימון", "ריצה", "הליכה", "שחייה", "חדר כושר", "ספורט", "תחרות", "תרגול",
+            "משחק", "כדורגל", "כדורסל", "טניס", "שחיין", "רצי", "אימונים", "רכיבה", "ג'וגינג"
+        ),
+        "בריאות" to listOf(
+            "רופא", "תרופה", "בדיקה", "מחלה", "טיפול", "קופת חולים", "אבחון", "בדיקות דם",
+            "תרופות", "רפואה", "אשפוז", "חיסון", "בדיקות רפואיות", "פיזיותרפיה", "מבחן דם"
+        ),
+        "פרויקטים אישיים" to listOf(
+            "פרויקט", "יוזמה", "תכנות", "קוד", "כתיבה", "פיתוח", "יצירה", "יצירתי", "חידוש", "לימוד עצמי"
+        ),
+        "תחבורה" to listOf(
+            "נסיעה", "רכב", "תחבורה", "אוטובוס", "רכבת", "טיסה", "נהיגה", "דלק", "כביש", "חניה",
+            "אופניים", "קורקינט", "נסיעה יום", "תחנה", "רמזור", "כבישים", "רכבת תחתית"
+        ),
+        "משפחה" to listOf(
+            "הורים", "אחים", "משפחה", "ילדים", "בת זוג", "סבא", "סבתא", "דודה", "דוד", "אחיינים",
+            "קרובים", "חברים קרובים", "חתונה", "לידה", "חג"
+        )
     )
+
     for ((category, patterns) in categoryPatterns) {
         for (pattern in patterns) {
             val regex = Regex(pattern, RegexOption.IGNORE_CASE)
@@ -219,6 +249,28 @@ fun HomeScreen(
                             .padding(padding),
                         contentAlignment = Alignment.Center
                     ) { Text("אין משימות 😴", color = Color.Gray) }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(132.dp))
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate("dashboard") {
+                                popUpTo("dashboard") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Text("חזור למסך הראשי", color = Color.White)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             } else {
                 if (category != "all") {
