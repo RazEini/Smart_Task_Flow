@@ -109,7 +109,6 @@ fun priorityColor(priority: Int): Color = when (priority) {
 }
 
 // ---------- מסך הבית ----------
-// ---------- מסך הבית ----------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
