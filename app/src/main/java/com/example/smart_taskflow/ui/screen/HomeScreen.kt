@@ -35,6 +35,13 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.navigation.NavController
 
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+
 // ---------- חישוב עדיפות ----------
 fun Task.calculatePriority(): Int {
     if (isDone) return 0
@@ -102,6 +109,7 @@ fun priorityColor(priority: Int): Color = when (priority) {
 }
 
 // ---------- מסך הבית ----------
+// ---------- מסך הבית ----------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -119,6 +127,10 @@ fun HomeScreen(
     var showDetailsTask by remember { mutableStateOf<Task?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var archiveExpanded by remember { mutableStateOf(false) }
+
+    // Snackbar לניהול משוב
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // סינון לפי קטגוריה וחיפוש
     val tasksInCategory = remember(tasks, category, searchQuery) {
@@ -165,11 +177,12 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    placeholder = { Text(" ...חיפוש משימות") },
+                    placeholder = { Text("...חיפוש משימות") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
                 )
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
@@ -227,9 +240,25 @@ fun HomeScreen(
                         items(normalTasks) { task ->
                             ModernTaskItem(
                                 task = task,
-                                onDelete = { viewModel.deleteTask(task.id) },
-                                onToggleDone = { viewModel.updateTask(task.copy(isDone = !task.isDone, userId = currentUserId)) },
-                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId)) },
+                                onDelete = {
+                                    viewModel.deleteTask(task.id)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "המשימה נמחקה",
+                                            actionLabel = "בטל",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            viewModel.addTask(task.copy(id = UUID.randomUUID().toString()))
+                                        }
+                                    }
+                                },
+                                onToggleDone = {
+                                    viewModel.updateTask(task.copy(isDone = !task.isDone, userId = currentUserId))
+                                },
+                                onImportantToggle = {
+                                    viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId))
+                                },
                                 onEdit = {
                                     editingTask = task
                                     showEditDialog = true
@@ -264,9 +293,25 @@ fun HomeScreen(
                         items(archivedTasks) { task ->
                             ModernTaskItem(
                                 task = task,
-                                onDelete = { viewModel.deleteTask(task.id) },
-                                onToggleDone = { viewModel.updateTask(task.copy(isDone = false, userId = currentUserId)) },
-                                onImportantToggle = { viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId)) },
+                                onDelete = {
+                                    viewModel.deleteTask(task.id)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "המשימה נמחקה",
+                                            actionLabel = "בטל",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            viewModel.addTask(task.copy(id = UUID.randomUUID().toString()))
+                                        }
+                                    }
+                                },
+                                onToggleDone = {
+                                    viewModel.updateTask(task.copy(isDone = false, userId = currentUserId))
+                                },
+                                onImportantToggle = {
+                                    viewModel.updateTask(task.copy(isImportant = !task.isImportant, userId = currentUserId))
+                                },
                                 onEdit = {
                                     editingTask = task
                                     showEditDialog = true
@@ -494,19 +539,74 @@ fun ModernTaskItem(
 fun TaskDetailsDialog(task: Task, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(task.title, fontWeight = FontWeight.Bold) },
         text = {
-            Column {
-                if (task.description.isNotEmpty()) Text(task.description)
-                task.dueDate?.let {
-                    Text("תאריך יעד: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)}")
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(6.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // כותרת עם אייקון קטגוריה
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val categorySymbol = when (task.assignCategory()) {
+                            "בית" -> "🏠"
+                            "עבודה" -> "💼"
+                            "לימודים" -> "🎓"
+                            "חשבונות" -> "🧾"
+                            else -> "🏷️"
+                        }
+                        Text(
+                            text = "$categorySymbol ${task.title}",
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        )
+                        if (task.isImportant) {
+                            Spacer(Modifier.width(8.dp))
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "חשוב",
+                                tint = Color(0xFFFFC107)
+                            )
+                        }
+                    }
+
+                    // תיאור
+                    if (task.description.isNotEmpty()) {
+                        Text(
+                            task.description,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF424242))
+                        )
+                    }
+
+                    // תאריך יעד
+                    task.dueDate?.let {
+                        val formattedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFF1976D2))
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                "עד: $formattedDate",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                            )
+                        }
+                    }
+
+                    Divider()
+
+                    // כפתור סגירה
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Text("סגור", color = Color.White)
+                    }
                 }
-                Text("חשוב: ${if (task.isImportant) "כן" else "לא"}")
             }
         },
-        confirmButton = {
-            Button(onClick = onDismiss) { Text("סגור") }
-        }
+        confirmButton = {}
     )
 }
 
@@ -533,25 +633,32 @@ fun TaskDialog(
         title = { Text(title, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                TextField(
+                OutlinedTextField(
                     value = taskTitle,
                     onValueChange = { taskTitle = it },
                     label = { Text("כותרת") },
-                    singleLine = true
+                    placeholder = { Text("מה המשימה?") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
-                TextField(
+                OutlinedTextField(
                     value = taskDescription,
                     onValueChange = { taskDescription = it },
-                    label = { Text("תיאור") }
+                    label = { Text("תיאור") },
+                    placeholder = { Text("פרטים נוספים...") },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("חשוב", modifier = Modifier.weight(1f))
+                    Switch(
                         checked = taskImportant,
                         onCheckedChange = { taskImportant = it }
                     )
-                    Text("חשוב")
                 }
                 Spacer(Modifier.height(8.dp))
                 OutlinedButton(onClick = {
