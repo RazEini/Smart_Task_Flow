@@ -137,17 +137,26 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // סינון לפי קטגוריה וחיפוש
+    val knownCategories = listOf(
+        "בית",
+        "עבודה",
+        "חשבונות",
+        "לימודים",
+        "קניות",
+        "ספורט",
+        "בריאות",
+        "פרויקטים אישיים",
+        "תחבורה",
+        "משפחה"
+    )
+
     val tasksInCategory = remember(tasks, category, searchQuery) {
         tasks.filter { it.userId == currentUserId }
-            .filter {
+            .filter { task ->
                 when (category) {
-                    "all" -> !it.isDone
-                    "other" -> {
-                        val cat = it.assignCategory()
-                        !it.isDone && cat != "בית" && cat != "עבודה" && cat != "לימודים" && cat != "חשבונות"
-                    }
-                    else -> !it.isDone && it.assignCategory() == category
+                    "all" -> !task.isDone
+                    "other" -> !task.isDone && task.assignCategory() !in knownCategories
+                    else -> !task.isDone && task.assignCategory() == category
                 }
             }
             .filter {
