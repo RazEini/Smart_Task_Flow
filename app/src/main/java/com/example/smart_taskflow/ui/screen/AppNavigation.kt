@@ -379,8 +379,7 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(24.dp))
 
@@ -424,16 +423,18 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
             )
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
                 items(categories) { category ->
-                    val count = when(category) {
+                    val count = when (category) {
                         "כל המשימות" -> tasks.count { !it.isDone }
                         "אחר" -> {
                             tasks.count {
                                 !it.isDone && run {
                                     val cat = it.assignCategory()
-                                    !categories.subList(1, categories.size - 1).contains(cat) // כל מה שלא נמצא ברשימת הקטגוריות למעט "כל המשימות" ו"אחר"
+                                    !categories.subList(1, categories.size - 1).contains(cat)
                                 }
                             }
                         }
@@ -487,10 +488,10 @@ fun DashboardScreen(viewModel: TaskViewModel = viewModel(), navController: NavCo
                         }
                     }
                 }
-                item { Spacer(modifier = Modifier.height(48.dp)) }
             }
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(16.dp))
+
             Button(
                 onClick = {
                     FirebaseAuth.getInstance().signOut()
