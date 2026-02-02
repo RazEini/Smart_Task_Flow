@@ -48,12 +48,13 @@
   <hr>
 
   <h2 align="center">🔎 Overview</h2>
-  <p align="center">
-    <strong>TaskFlow</strong> נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות
-    וסדר עדיפויות מבוסס הקשר. <br>
-    מסך <strong>Dashboard</strong> מציג את שם המשתמש, כמות המשימות לביצוע וסינון לפי קטגוריות, <br>
-    ו-<strong>HomeScreen</strong> מציג את כל המשימות לבחירה, עריכה וסיום משימות.
-  </p>
+  <p align="center" dir="rtl">
+    <strong>TaskFlow</strong> נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות וסדר עדיפויות מבוסס הקשר.
+    <br>
+    מסך <strong><span dir="ltr">Dashboard</span></strong> מציג את שם המשתמש, כמות המשימות לביצוע וסינון לפי קטגוריות,
+    <br>
+    ו-<strong><span dir="ltr">HomeScreen</span></strong> מציג את כל המשימות לבחירה, עריכה וסיום משימות.
+</p>
 
   <br>
 
@@ -63,7 +64,7 @@
 
   <h2 align="center">🚀 Features</h2>
 
-  <table align="center">
+  <table align="center" dir="rtl">
     <thead>
       <tr>
         <th>תחום</th>
