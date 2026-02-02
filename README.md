@@ -1,21 +1,24 @@
 <div dir="rtl">
 
-  <h1>📱 TaskFlow – Smart Task Manager App</h1>
+  <h1 align="center">📱 TaskFlow – Smart Task Manager App</h1>
 
-  <p>
+  <p align="center">
     מנהל משימות חכם למובייל עם <strong>אוטומציה של סדר עדיפויות וקטגוריות</strong>.<br>
     כולל מסכי Splash, Login, Register, Dashboard ו-HomeScreen להצגת משימות.<br>
     מבוסס Jetpack Compose + MVVM.
   </p>
 
-  <p align="right">
+  <br>
+  <p align="center">
     <img src="https://img.shields.io/badge/Kotlin-100%25-orange?logo=kotlin" alt="Kotlin Badge">
     <img src="https://img.shields.io/badge/Jetpack%20Compose-UI-blue?logo=jetpackcompose" alt="Jetpack Compose Badge">
     <img src="https://img.shields.io/badge/Architecture-MVVM-green" alt="MVVM Badge">
     <img src="https://img.shields.io/badge/License-MIT-blue" alt="License Badge">
   </p>
 
-  <h2>🎬 Demo / המחשה</h2>
+  <br>
+
+  <h2 align="center">🎬 Demo / המחשה</h2>
 
   <br/>
 
@@ -44,8 +47,8 @@
 
   <hr>
 
-  <h2>🔎 Overview</h2>
-  <p dir = "rtl">
+  <h2 align="center">🔎 Overview</h2>
+  <p align="center">
     <strong>TaskFlow</strong> נועדה לעזור לך לנהל משימות בצורה חכמה, עם יכולות סיווג אוטומטיות
     וסדר עדיפויות מבוסס הקשר. <br>
     מסך <strong>Dashboard</strong> מציג את שם המשתמש, כמות המשימות לביצוע וסינון לפי קטגוריות, <br>
@@ -54,9 +57,9 @@
 
   <hr>
 
-  <h2>🚀 Features</h2>
+  <h2 align="center">🚀 Features</h2>
 
-  <table>
+  <table align="center">
     <thead>
       <tr>
         <th>תחום</th>
@@ -68,7 +71,11 @@
     <tbody>
       <tr>
         <td>🖥️ מסכים</td>
-        <td>SplashScreen, LoginScreen, RegisterScreen, Dashboard, HomeScreen</td>
+        <td>SplashScreen,
+          LoginScreen,
+          RegisterScreen,
+          Dashboard,
+          HomeScreen</td>
         <td>✅</td>
         <td>מעבר חכם בין מסכים + הצגת משימות לפי קטגוריות</td>
       </tr>
@@ -131,15 +138,17 @@
 
   <hr>
 
-  <h2>🛠️ Tech Stack</h2>
+  <div dir="rtl">
+  <h2>🛠️ טכנולוגיות</h2>
   <ul>
-    <li><strong>Language:</strong> Kotlin</li>
-    <li><strong>IDE:</strong> Android Studio</li>
-    <li><strong>UI:</strong> Jetpack Compose + Material 3</li>
-    <li><strong>Architecture:</strong> MVVM</li>
-    <li><strong>Data:</strong> Room / ViewModel / StateFlow</li>
-    <li><strong>Authentication:</strong> Firebase Auth</li>
+    <li><strong>שפת פיתוח:</strong> Kotlin</li>
+    <li><strong>סביבת פיתוח (IDE):</strong> Android Studio</li>
+    <li><strong>ממשק משתמש (UI):</strong> Jetpack Compose + Material 3</li>
+    <li><strong>ארכיטקטורה:</strong> MVVM</li>
+    <li><strong>ניהול נתונים:</strong> Room / ViewModel / StateFlow</li>
+    <li><strong>אימות משתמשים:</strong> Firebase Auth</li>
   </ul>
+</div>
 
   <hr>
 
@@ -151,6 +160,6 @@
 
   <hr>
 
-  <p><strong>👨‍💻 Raz Eini (2025)</strong></p>
+  <p align="center"><strong>👨‍💻 Raz Eini (2025)</strong></p>
 
 </div>
