@@ -55,7 +55,11 @@
     ו-<strong>HomeScreen</strong> מציג את כל המשימות לבחירה, עריכה וסיום משימות.
   </p>
 
+  <br>
+
   <hr>
+
+  <br>
 
   <h2 align="center">🚀 Features</h2>
 
@@ -135,6 +139,8 @@
       </tr>
     </tbody>
   </table>
+
+  <br>
 
   <hr>
 
